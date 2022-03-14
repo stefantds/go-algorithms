@@ -11,17 +11,15 @@ type edge struct {
 	weight   int
 }
 
-func Kruskal(n int, edges []edge) []edge {
-	edgesPQ := edgeHeap(edges)
-	heap.Init(&edgesPQ)
-
+func Kruskal(n int, edges []edge, edgesPQ priorityQueue) []edge {
+	edgesPQ.Init(edges)
 	uf := union_find.NewWeightedQuickUnion(n)
 
 	result := make([]edge, 0)
 
 	// stop when having enough edges in the MST or when there are no more edges
-	for len(edgesPQ) > 0 && len(result) < n-1 {
-		curr := heap.Pop(&edgesPQ).(edge)
+	for !edgesPQ.IsEmpty() && len(result) < n-1 {
+		curr := edgesPQ.Pop()
 		if !uf.Connected(curr.from, curr.to) {
 			result = append(result, curr)
 			uf.Union(curr.from, curr.to)
@@ -41,4 +39,33 @@ func (h *edgeHeap) Pop() interface{} {
 	var e edge
 	*h, e = (*h)[:len(*h)-1], (*h)[len(*h)-1]
 	return e
+}
+
+type edgesPQ struct {
+	h edgeHeap
+}
+
+func NewEdgesPQ() *edgesPQ {
+	return &edgesPQ{
+		h: make(edgeHeap, 0),
+	}
+}
+
+func (h *edgesPQ) Init(edges []edge) {
+	*h = edgesPQ{
+		h: edges,
+	}
+	heap.Init(&h.h)
+}
+
+func (h *edgesPQ) Push(v edge) {
+	heap.Push(&h.h, v)
+}
+
+func (h *edgesPQ) Pop() edge {
+	return heap.Pop(&h.h).(edge)
+}
+
+func (h *edgesPQ) IsEmpty() bool {
+	return len(h.h) == 0
 }

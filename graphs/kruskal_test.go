@@ -22,14 +22,14 @@ func TestKruskal(t *testing.T) {
 				{from: 1, to: 2, weight: 2},
 			},
 			expectedResult: []edge{
-				{from: 2, to: 1, weight: 2},
+				{from: 1, to: 2, weight: 2},
 				{from: 0, to: 1, weight: 3},
 			},
 		},
 	} {
 		tc := tc
 		t.Run(fmt.Sprintf("test case %v", i), func(t *testing.T) {
-			result := Kruskal(tc.graphSize, tc.edges)
+			result := Kruskal(tc.graphSize, tc.edges, NewEdgesPQ())
 			if !reflect.DeepEqual(result, tc.expectedResult) {
 				t.Errorf("expected %v, have %v", tc.expectedResult, result)
 			}

@@ -1,20 +1,21 @@
 package graphs
 
-import (
-	"container/heap"
-)
+type priorityQueue interface {
+	IsEmpty() bool
+	Push(x edge)
+	Pop() edge
+	Init([]edge)
+}
 
-func Prim(n int, adj map[int][]edge) []edge {
-	pq := make(edgeHeap, 0)
-	heap.Init(&pq)
+func Prim(n int, adj map[int][]edge, pq priorityQueue) []edge {
 	marked := make(map[int]bool)
 	result := make([]edge, 0)
 
 	// start with any vertex
-	visit(adj, 0, marked, &pq)
+	visit(adj, 0, marked, pq)
 
-	for len(pq) > 0 && len(result) < n-1 {
-		curr := heap.Pop(&pq).(edge) // take the edge with the min weight
+	for !pq.IsEmpty() && len(result) < n-1 {
+		curr := pq.Pop() // take the edge with the min weight
 
 		// ignore edges that have no new vertex (lazy implementation)
 		if marked[curr.from] && marked[curr.to] {
@@ -26,16 +27,16 @@ func Prim(n int, adj map[int][]edge) []edge {
 
 		// visit the vertex that was not visited before
 		if !marked[curr.from] {
-			visit(adj, curr.from, marked, &pq)
+			visit(adj, curr.from, marked, pq)
 		} else {
-			visit(adj, curr.to, marked, &pq)
+			visit(adj, curr.to, marked, pq)
 		}
 	}
 
 	return result
 }
 
-func visit(adj map[int][]edge, v int, marked map[int]bool, pq *edgeHeap) {
+func visit(adj map[int][]edge, v int, marked map[int]bool, pq priorityQueue) {
 	marked[v] = true
 
 	// go through all neighbors of v and add them to the heap
@@ -43,7 +44,7 @@ func visit(adj map[int][]edge, v int, marked map[int]bool, pq *edgeHeap) {
 		// since one end of the edge is v (which is visited), we ignore any edge that
 		// has thre other side visited as well because it would create a cycle
 		if !marked[e.to] {
-			heap.Push(pq, e)
+			pq.Push(e)
 		}
 	}
 }

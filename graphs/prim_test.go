@@ -36,7 +36,7 @@ func TestPrim(t *testing.T) {
 	} {
 		tc := tc
 		t.Run(fmt.Sprintf("test case %v", i), func(t *testing.T) {
-			result := Prim(tc.graphSize, tc.edges)
+			result := Prim(tc.graphSize, tc.edges, NewEdgesPQ())
 			if !reflect.DeepEqual(result, tc.expectedResult) {
 				t.Errorf("expected %v, have %v", tc.expectedResult, result)
 			}
