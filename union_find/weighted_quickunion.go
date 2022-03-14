@@ -42,11 +42,10 @@ func (q weightedQuickUnion) Connected(x, y int) bool {
 }
 
 func (q weightedQuickUnion) root(x int) int {
-	if x == q.parents[x] {
-		return x
+	for x != q.parents[x] {
+		x = q.parents[x]
 	}
-	q.parents[x] = q.root(q.parents[x])
-	return q.parents[x]
+	return x
 }
 
 func (q weightedQuickUnion) Count() int {
