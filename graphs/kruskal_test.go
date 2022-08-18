@@ -29,7 +29,7 @@ func TestKruskal(t *testing.T) {
 	} {
 		tc := tc
 		t.Run(fmt.Sprintf("test case %v", i), func(t *testing.T) {
-			result := Kruskal(tc.graphSize, tc.edges, NewEdgesPQ())
+			result := Kruskal(tc.graphSize, tc.edges)
 			if !reflect.DeepEqual(result, tc.expectedResult) {
 				t.Errorf("expected %v, have %v", tc.expectedResult, result)
 			}

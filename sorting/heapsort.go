@@ -17,7 +17,7 @@ func Heapsort(a []int) {
 	}
 }
 
-// sink moves the element at index i in a
+// sink moves the element at index k in a
 // to its correct heap position.
 // k is 1-indexed
 func sink(a []int, k int, n int) {

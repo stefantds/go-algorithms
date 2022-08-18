@@ -25,14 +25,16 @@ func BellmanFord(n int, edges []edge, source int) (map[int]int, map[int]int, boo
 	distTo[source] = 0
 	pathTo[source] = source
 
-	for i := 0; i < n-1; i++ { // iterate V-1 times
+	// iterate V-1 times;
+	// alternatively iterate V times if we need t detect negative cycles. Check
+	// if in the last iteration any relaxation was done
+	for i := 0; i < n-1; i++ {
 		for _, e := range edges {
-			// relax
 			relax(e)
 		}
 	}
 
-	// one can do another pass over all edges. If any further updates
+	// alternatively one can do another pass over all edges to detect negative cycle. If any further updates
 	// is found, it means there is a negative-weight cycle
 	hasNegativeCycles := false
 	for _, e := range edges {

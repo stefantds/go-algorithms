@@ -1,7 +1,7 @@
 package graphs
 
 import (
-	"container/heap"
+	"sort"
 
 	"github.com/stefantds/go-algorithms/union_find"
 )
@@ -11,61 +11,24 @@ type edge struct {
 	weight   int
 }
 
-func Kruskal(n int, edges []edge, edgesPQ priorityQueue) []edge {
-	edgesPQ.Init(edges)
+func Kruskal(n int, edges []edge) []edge {
+	sort.Slice(edges, func(i, j int) bool {
+		return edges[i].weight < edges[j].weight
+	})
 	uf := union_find.NewWeightedQuickUnion(n)
 
 	result := make([]edge, 0)
 
+	i := 0
 	// stop when having enough edges in the MST or when there are no more edges
-	for !edgesPQ.IsEmpty() && len(result) < n-1 {
-		curr := edgesPQ.Pop()
+	for i < len(edges) && len(result) < n-1 {
+		curr := edges[i]
 		if !uf.Connected(curr.from, curr.to) {
 			result = append(result, curr)
 			uf.Union(curr.from, curr.to)
 		}
+		i++
 	}
 
 	return result
-}
-
-type edgeHeap []edge
-
-func (h edgeHeap) Len() int            { return len(h) }
-func (h edgeHeap) Less(i, j int) bool  { return h[i].weight < h[j].weight }
-func (h *edgeHeap) Swap(i, j int)      { (*h)[i], (*h)[j] = (*h)[j], (*h)[i] }
-func (h *edgeHeap) Push(v interface{}) { (*h) = append(*h, v.(edge)) }
-func (h *edgeHeap) Pop() interface{} {
-	var e edge
-	*h, e = (*h)[:len(*h)-1], (*h)[len(*h)-1]
-	return e
-}
-
-type edgesPQ struct {
-	h edgeHeap
-}
-
-func NewEdgesPQ() *edgesPQ {
-	return &edgesPQ{
-		h: make(edgeHeap, 0),
-	}
-}
-
-func (h *edgesPQ) Init(edges []edge) {
-	*h = edgesPQ{
-		h: edges,
-	}
-	heap.Init(&h.h)
-}
-
-func (h *edgesPQ) Push(v edge) {
-	heap.Push(&h.h, v)
-}
-
-func (h *edgesPQ) Pop() edge {
-	return heap.Pop(&h.h).(edge)
-}
-
-func (h *edgesPQ) IsEmpty() bool {
-	return len(h.h) == 0
 }

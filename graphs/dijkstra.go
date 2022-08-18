@@ -17,16 +17,14 @@ func Dijkstra(n int, adj map[int][]edge, source int, pq indexedPQ) (map[int]int,
 	distTo := make(map[int]int)
 	pathTo := make(map[int]int)
 
-	relax := func(v int) {
-		for _, e := range adj[v] {
-			if distTo[v]+e.weight < distTo[e.to] {
-				if pq.Contains(e.to) {
-					pq.ChangeKey(e.to, distTo[v]+e.weight)
-				} else {
-					pq.Insert(e.to, distTo[v]+e.weight)
-				}
-				distTo[e.to] = distTo[v] + e.weight
-				pathTo[e.to] = v
+	relax := func(e edge) {
+		if distTo[e.from]+e.weight < distTo[e.to] {
+			distTo[e.to] = distTo[e.from] + e.weight
+			pathTo[e.to] = e.from
+			if pq.Contains(e.to) {
+				pq.ChangeKey(e.to, distTo[e.to])
+			} else {
+				pq.Insert(e.to, distTo[e.to])
 			}
 		}
 	}
@@ -37,12 +35,13 @@ func Dijkstra(n int, adj map[int][]edge, source int, pq indexedPQ) (map[int]int,
 	}
 	distTo[source] = 0
 	pathTo[source] = source
-
-	relax(source)
+	pq.Insert(source, 0)
 
 	for !pq.IsEmpty() {
 		curr, _ := pq.DelMin()
-		relax(curr)
+		for _, e := range adj[curr] {
+			relax(e)
+		}
 	}
 
 	return distTo, pathTo
@@ -92,4 +91,45 @@ func DijkstraLazy(n int, adj map[int][]edge, source int) (map[int]int, map[int]i
 	}
 
 	return distTo, pathTo
+}
+
+type edgeHeap []edge
+
+func (h edgeHeap) Len() int            { return len(h) }
+func (h edgeHeap) Less(i, j int) bool  { return h[i].weight < h[j].weight }
+func (h *edgeHeap) Swap(i, j int)      { (*h)[i], (*h)[j] = (*h)[j], (*h)[i] }
+func (h *edgeHeap) Push(v interface{}) { (*h) = append(*h, v.(edge)) }
+func (h *edgeHeap) Pop() interface{} {
+	var e edge
+	*h, e = (*h)[:len(*h)-1], (*h)[len(*h)-1]
+	return e
+}
+
+type edgesPQ struct {
+	h edgeHeap
+}
+
+func NewEdgesPQ() *edgesPQ {
+	return &edgesPQ{
+		h: make(edgeHeap, 0),
+	}
+}
+
+func (h *edgesPQ) Init(edges []edge) {
+	*h = edgesPQ{
+		h: edges,
+	}
+	heap.Init(&h.h)
+}
+
+func (h *edgesPQ) Push(v edge) {
+	heap.Push(&h.h, v)
+}
+
+func (h *edgesPQ) Pop() edge {
+	return heap.Pop(&h.h).(edge)
+}
+
+func (h *edgesPQ) IsEmpty() bool {
+	return len(h.h) == 0
 }
